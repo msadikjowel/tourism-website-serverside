@@ -26,12 +26,14 @@ async function run() {
         const bookingsCollection = database.collection('bookings')
 
 
+
         // GET API (load all services)
         app.get('/services', async (req, res) => {
             const query = servicesCollection.find({});
             const services = await query.toArray();
             res.send(services);
         });
+
 
 
         // GET API (load single service)
@@ -44,6 +46,7 @@ async function run() {
         });
 
 
+
         // GET API (load my booking)
         app.get('/myBooking/:email', async (req, res) => {
             const email = req.params.email;
@@ -52,12 +55,51 @@ async function run() {
         });
 
 
+
+        // GET API (load all bookings)
+        app.get('/allBookings', async (req, res) => {
+            const query = bookingsCollection.find({});
+            const bookings = await query.toArray();
+            res.send(bookings);
+        });
+
+
+
         // POST API (confirm booking)
         app.post('/confirmBooking', async (req, res) => {
             const query = req.body;
             const result = await bookingsCollection.insertOne(query);
             res.send(result);
         });
+
+
+
+        // POST API (add a service)
+        app.post('/addService', async (req, res) => {
+            const query = req.body;
+            const result = await servicesCollection.insertOne(query);
+            res.send(result);
+        });
+
+
+        // UPDATE API (update status)
+        app.put('/updateBooking/:id', async (req, res) => {
+            const id = req.params.id;
+            // console.log(id)
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: 'Approved'
+                },
+            };
+
+            const result = await bookingsCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+
+
+        })
+
 
 
         // DELETE API (delete from confirmed booking)
